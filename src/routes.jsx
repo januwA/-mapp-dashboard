@@ -1,6 +1,7 @@
 // 路由配置分离到单独文件
 import React, { Suspense } from "react";
 import { Navigate } from "react-router-dom";
+import { moduleLoader, useModule } from "./ModuleLoader.js";
 
 // 使用 React.lazy 进行路由分割
 const HomePage = React.lazy(() => import("@mapp/home"));
@@ -13,10 +14,50 @@ import { AppLayout, SimpleLayout } from "@mapp/shared-lib/layouts";
 
 // 创建带加载状态的组件包装器
 const withSuspense = (Component) => (
-  <Suspense fallback={<div style={{ padding: "20px", textAlign: "center" }}>⏳ 加载中...</div>}>
+  <Suspense
+    fallback={
+      <div style={{ padding: "20px", textAlign: "center" }}>⏳ 加载中...</div>
+    }
+  >
     <Component />
   </Suspense>
 );
+
+const DynamicImportUmdComponent = () => {
+  const module = useModule("react-shared");
+  const CountComponent = module?.CountComponent;
+  const DynamicJump = module?.DynamicJump;
+
+  return (
+    <div>
+      {CountComponent ? (
+        <CountComponent />
+      ) : (
+        <div>CountComponent 组件加载失败</div>
+      )}
+      {DynamicJump ? <DynamicJump /> : <div>DynamicJump 组件加载失败</div>}
+    </div>
+  );
+};
+
+const DynamicImportZustandComponent = () => {
+  const module = useModule("react-shared");
+  const useCountStore = module?.useCountStore;
+  const { count, increment, decrement, reset } = useCountStore();
+
+  return (
+    <div>
+      <div style={{ fontSize: "24px", margin: "20px 0" }}>
+        计数: <strong>{count}</strong>
+      </div>
+      <div style={{ display: "flex", gap: "10px" }}>
+        <button onClick={decrement}>-</button>
+        <button onClick={reset}>重置</button>
+        <button onClick={increment}>+</button>
+      </div>
+    </div>
+  );
+};
 
 export const routeConfig = [
   {
@@ -38,6 +79,14 @@ export const routeConfig = [
       {
         path: "me",
         element: withSuspense(MePage),
+      },
+      {
+        path: "dynamic-import",
+        element: <DynamicImportUmdComponent />,
+      },
+      {
+        path: "dynamic-import-zustand",
+        element: <DynamicImportZustandComponent />,
       },
     ],
   },
