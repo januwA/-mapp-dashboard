@@ -92,6 +92,7 @@ class ModuleLoader {
         try {
           const module = await dependencyMap[dep]();
           window[globalName] = module;
+          console.log(`define global: ${globalName}`, module);
         } catch (error) {
           console.warn(`Failed to load dependency ${dep}:`, error);
         }

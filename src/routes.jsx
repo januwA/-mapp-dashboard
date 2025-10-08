@@ -59,7 +59,7 @@ const DynamicImportZustandComponent = () => {
   );
 };
 
-export const routeConfig = [
+export const getRouteConfig = () => [
   {
     path: "/",
     element: <Navigate to="/home" replace />,
